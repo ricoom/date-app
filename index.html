@@ -348,6 +348,42 @@
       display: block;
     }
 
+    /* --- DATE PICKER STYLING --- */
+.input-group input[type="date"] {
+  width: 100%;
+  padding: 0.9rem 1.2rem;
+  border: 2px solid #f8bbd0;
+  background: rgba(255, 255, 255, 0.7);
+  backdrop-filter: blur(4px);
+  border-radius: 40px;
+  font-size: 1rem;
+  transition: all 0.2s;
+  outline: none;
+  color: #4a0024;
+  font-weight: 500;
+  font-family: inherit;
+  cursor: pointer;
+}
+
+.input-group input[type="date"]:focus {
+  border-color: #d81b60;
+  background: white;
+  box-shadow: 0 0 0 5px rgba(216, 27, 96, 0.15);
+}
+
+/* Customizes the calendar indicator icon color and styling */
+.input-group input[type="date"]::-webkit-calendar-picker-indicator {
+  background-image: url('data:image/svg+xml;utf8,<svg xmlns="http://www.w3.org/2000/svg" width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="%23ad1457" stroke-width="2" stroke-linecap="round" stroke-linejoin="round"><rect x="3" y="4" width="18" height="18" rx="2" ry="2"></rect><line x1="16" y1="2" x2="16" y2="6"></line><line x1="8" y1="2" x2="8" y2="6"></line><line x1="3" y1="10" x2="21" y2="10"></line></svg>');
+  cursor: pointer;
+  padding: 5px;
+  border-radius: 50%;
+  transition: background 0.2s;
+}
+
+.input-group input[type="date"]::-webkit-calendar-picker-indicator:hover {
+  background-color: rgba(248, 187, 208, 0.4);
+}
+
     /* --- MOBILE RESPONSIVE --- */
     @media (max-width: 550px) {
       .love-card { padding: 1.8rem 1rem; }
@@ -392,7 +428,17 @@
           ></textarea>
           <span data-fs-error="message"></span>
         </div>
-
+<div class="input-group">
+  <label for="date"><i>📅</i> pick our perfect day</label>
+  <input 
+    type="date" 
+    id="date" 
+    name="date" 
+    data-fs-field
+    required
+  >
+  <span data-fs-error="date"></span>
+</div>
         <div class="input-group">
           <label><i>💕</i> will you go out with me?</label>
           <div class="radio-group">
@@ -448,7 +494,12 @@
     const submitBtn = document.getElementById('submitBtn');
     const thankYouMessage = document.getElementById('thankYouMessage');
     const formSection = document.getElementById('formSection');
-
+// Set the minimum selectable date to today
+const dateInput = document.getElementById('date');
+if (dateInput) {
+  const today = new Date().toISOString().split('T')[0];
+  dateInput.min = today;
+}
     // UI Feedback adjustment prior to SDK submission firing
     form.addEventListener('submit', function() {
       submitBtn.innerHTML = '⏳ sending your love... 💕';
