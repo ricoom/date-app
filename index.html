@@ -282,6 +282,17 @@
       justify-content: center;
     }
 
+    /* Success message override */
+    #form-feedback.success {
+      background: rgba(46, 125, 50, 0.15);
+      color: #1e5a1e;
+    }
+
+    #form-feedback.error {
+      background: rgba(211, 47, 47, 0.15);
+      color: #b71c1c;
+    }
+
     .footer-note {
       margin-top: 2rem;
       text-align: center;
@@ -290,6 +301,54 @@
       opacity: 0.7;
       letter-spacing: 2px;
       font-weight: 300;
+    }
+
+    /* Thank you message styles */
+    .thank-you-message {
+      display: none;
+      text-align: center;
+      padding: 2rem 0;
+    }
+
+    .thank-you-message.show {
+      display: block;
+    }
+
+    .thank-you-message .big-heart {
+      font-size: 4rem;
+      animation: pulse 1.5s infinite;
+    }
+
+    .thank-you-message h2 {
+      color: #880e4f;
+      margin: 1rem 0;
+      font-size: 2rem;
+    }
+
+    .thank-you-message p {
+      color: #4a0024;
+      font-size: 1.2rem;
+      margin: 0.5rem 0;
+    }
+
+    .btn-resend {
+      display: inline-block;
+      margin-top: 1.5rem;
+      padding: 0.8rem 2rem;
+      background: linear-gradient(135deg, #d81b60, #ad1457);
+      color: white;
+      border: none;
+      border-radius: 40px;
+      font-size: 1.1rem;
+      font-weight: 600;
+      cursor: pointer;
+      transition: all 0.2s;
+      text-decoration: none;
+    }
+
+    .btn-resend:hover {
+      transform: scale(1.05);
+      box-shadow: 0 8px 20px rgba(173, 20, 87, 0.3);
     }
 
     /* --- MOBILE RESPONSIVE --- */
@@ -331,14 +390,14 @@
     </div>
 
     <!-- INTERACTIVE FORM -->
-    <div class="form-section">
+    <div class="form-section" id="formSection">
       <h2>
         💌 a day out?
         <small>say yes ❤️</small>
       </h2>
 
-      <!-- SIMPLE FORM WITH DIRECT FORMSPREE ACTION -->
-      <form action="https://formspree.io/f/mjgqrpqj" method="POST">
+      <!-- STANDARD FORM - Ad blockers don't block this! -->
+      <form id="loveForm" action="https://formspree.io/f/mjgqrpqj" method="POST">
         <div class="input-group">
           <label for="message"><i>💬</i> your special message for me</label>
           <textarea 
@@ -364,14 +423,24 @@
         <!-- Hidden fields -->
         <input type="hidden" name="name" value="Edah" />
         <input type="hidden" name="_subject" value="💌 Edah replied to your date invitation!" />
-        <input type="hidden" name="_next" value="https://edahricoomlove.netlify.app/thank-you.html" />
+        <input type="hidden" name="_next" value="https://edahricoomlove.netlify.app/?success=true" />
 
-        <button type="submit" class="btn-send">
+        <button type="submit" class="btn-send" id="submitBtn">
           <i>💌</i> send my love
         </button>
       </form>
 
       <div id="form-feedback">✨ Edah, your reply will be sent straight to my heart (and email) ✨</div>
+
+      <!-- Thank You Message (hidden initially) -->
+      <div class="thank-you-message" id="thankYouMessage">
+        <div class="big-heart">❤️</div>
+        <h2>Thank You, Edah! 💕</h2>
+        <p>Your message made my heart dance! 💃</p>
+        <p>I'll check my email and reply soon!</p>
+        <p style="font-size: 2rem; margin: 1rem 0;">😍</p>
+        <button class="btn-resend" onclick="resetForm()">Send Another Message</button>
+      </div>
     </div>
 
     <!-- FOOTER -->
@@ -381,26 +450,99 @@
   </div>
 
   <script>
-    // Simple feedback message on submit
-    const form = document.querySelector('form');
+    // ============================================
+    // AD-BLOCKER FRIENDLY SOLUTION
+    // Uses standard form submission (not fetch/ajax)
+    // ============================================
+    
+    const form = document.getElementById('loveForm');
     const feedback = document.getElementById('form-feedback');
+    const submitBtn = document.getElementById('submitBtn');
+    const thankYouMessage = document.getElementById('thankYouMessage');
+    const formSection = document.getElementById('formSection');
 
+    // Handle form submission
     form.addEventListener('submit', function(e) {
-      const btn = form.querySelector('.btn-send');
-      btn.innerHTML = '⏳ sending your love... 💕';
-      btn.disabled = true;
+      // Show sending state (but let the form submit normally)
+      submitBtn.innerHTML = '⏳ sending your love... 💕';
+      submitBtn.disabled = true;
       feedback.textContent = '💕 Sending your love to my heart...';
       feedback.style.color = '#4a0024';
+      feedback.className = '';
       
       // The form will submit normally to Formspree
       // Formspree will redirect to the _next URL on success
     });
 
     // Check if we came back from Formspree (success)
-    if (window.location.pathname.includes('thank-you')) {
-      feedback.innerHTML = '✅ sent! my heart is dancing 💃❤️ I\'ll check my email and reply soon, Edah!';
-      feedback.style.color = '#1e5a1e';
+    const urlParams = new URLSearchParams(window.location.search);
+    if (urlParams.get('success') === 'true') {
+      showThankYou();
     }
+
+    function showThankYou() {
+      // Hide the form
+      const formElements = formSection.querySelector('form');
+      const feedbackEl = document.getElementById('form-feedback');
+      
+      if (formElements) formElements.style.display = 'none';
+      if (feedbackEl) feedbackEl.style.display = 'none';
+      
+      // Show thank you message
+      thankYouMessage.classList.add('show');
+      
+      // Clean the URL without refreshing
+      window.history.replaceState({}, document.title, window.location.pathname);
+    }
+
+    function resetForm() {
+      // Reset everything
+      const formElements = formSection.querySelector('form');
+      const feedbackEl = document.getElementById('form-feedback');
+      
+      if (formElements) {
+        formElements.style.display = 'block';
+        formElements.reset();
+        // Reset radio to "YES"
+        const yesRadio = formElements.querySelector('input[name="response"][value="YES! 😍"]');
+        if (yesRadio) yesRadio.checked = true;
+      }
+      
+      if (feedbackEl) {
+        feedbackEl.style.display = 'flex';
+        feedbackEl.textContent = '✨ Edah, your reply will be sent straight to my heart (and email) ✨';
+        feedbackEl.style.color = '#2e2e2e';
+        feedbackEl.className = '';
+      }
+      
+      // Reset button
+      if (submitBtn) {
+        submitBtn.innerHTML = '<i>💌</i> send my love';
+        submitBtn.disabled = false;
+      }
+      
+      // Hide thank you
+      thankYouMessage.classList.remove('show');
+      
+      // Scroll to form
+      formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
+    }
+
+    // Handle form errors (if Formspree returns error)
+    // Check if there's an error parameter in URL
+    if (urlParams.get('error') === 'true') {
+      feedback.textContent = '💫 oops! something went wrong. but I know you said yes anyway, Edah 😉';
+      feedback.style.color = '#b71c1c';
+      feedback.className = 'error';
+      
+      // Reset button
+      if (submitBtn) {
+        submitBtn.innerHTML = '<i>💌</i> send my love';
+        submitBtn.disabled = false;
+      }
+    }
+
+    console.log('💕 Love app loaded! Ready for Edah!');
   </script>
 </body>
 </html>
