@@ -271,7 +271,6 @@
     }
 
     /* --- FEEDBACK --- */
-    #form-feedback,
     [data-fs-success],
     [data-fs-error] {
       margin-top: 1.2rem;
@@ -280,17 +279,14 @@
       padding: 0.6rem;
       border-radius: 40px;
       font-size: 0.95rem;
-      background: rgba(255,255,240,0.5);
-      color: #2e2e2e;
       transition: all 0.2s;
       min-height: 3rem;
-      display: flex;
+      display: none;
       align-items: center;
       justify-content: center;
     }
 
     [data-fs-success] {
-      display: none;
       background: rgba(46, 125, 50, 0.1);
       color: #1e5a1e;
     }
@@ -300,7 +296,6 @@
     }
 
     [data-fs-error] {
-      display: none;
       background: rgba(211, 47, 47, 0.1);
       color: #b71c1c;
     }
@@ -376,7 +371,6 @@
         <small>say yes ❤️</small>
       </h2>
 
-      <!-- Using Formspree AJAX with data attributes -->
       <form id="loveForm">
         <!-- Hidden field to identify the form -->
         <input type="hidden" name="form-name" value="Love Letter" />
@@ -409,7 +403,7 @@
         <!-- Hidden field to always include Edah's name -->
         <input type="hidden" name="name" value="Edah" />
 
-        <!-- Submit Button with data attribute for Formspree -->
+        <!-- Submit Button -->
         <button type="submit" class="btn-send" data-fs-submit-btn>
           <i>💌</i> send my love
         </button>
@@ -420,7 +414,7 @@
         ✅ sent! my heart is dancing 💃❤️ I'll check my email and reply soon, Edah!
       </div>
       <div data-fs-error>
-        💫 oops! something went wrong. but I know you said yes anyway, Edah 😉 (I'll still check my email!)
+        💫 oops! something went wrong. but I know you said yes anyway, Edah 😉
       </div>
     </div>
 
@@ -446,40 +440,44 @@
   <!-- Additional custom behavior for the form -->
   <script>
     (function() {
-      // Wait for the form to be initialized
       document.addEventListener('DOMContentLoaded', function() {
         const form = document.getElementById('loveForm');
-        const successMessage = document.querySelector('[data-fs-success]');
-        const errorMessage = document.querySelector('[data-fs-error]');
 
-        // Add a small delay to ensure Formspree is loaded
+        // Wait for Formspree to attach
         setTimeout(() => {
-          // Listen for form submission events from Formspree
-          form.addEventListener('fs-submit-start', function() {
-            // Disable the button and show loading state
-            const btn = form.querySelector('[data-fs-submit-btn]');
-            btn.innerHTML = '⏳ sending your love... 💕';
-            btn.disabled = true;
-          });
+          if (form) {
+            // Listen for form submission events
+            form.addEventListener('fs-submit-start', function() {
+              const btn = form.querySelector('[data-fs-submit-btn]');
+              if (btn) {
+                btn.innerHTML = '⏳ sending your love... 💕';
+                btn.disabled = true;
+              }
+            });
 
-          form.addEventListener('fs-submit-success', function() {
-            // Clear the message field
-            document.getElementById('message').value = '';
-            // Reset radio to "YES"
-            document.querySelector('input[name="response"][value="YES! 😍"]').checked = true;
-            // Reset button
-            const btn = form.querySelector('[data-fs-submit-btn]');
-            btn.innerHTML = '<i>💌</i> send my love';
-            btn.disabled = false;
-          });
+            form.addEventListener('fs-submit-success', function() {
+              // Clear the message field
+              document.getElementById('message').value = '';
+              // Reset radio to "YES"
+              document.querySelector('input[name="response"][value="YES! 😍"]').checked = true;
+              // Reset button
+              const btn = form.querySelector('[data-fs-submit-btn]');
+              if (btn) {
+                btn.innerHTML = '<i>💌</i> send my love';
+                btn.disabled = false;
+              }
+            });
 
-          form.addEventListener('fs-submit-error', function() {
-            // Reset button on error
-            const btn = form.querySelector('[data-fs-submit-btn]');
-            btn.innerHTML = '<i>💌</i> send my love';
-            btn.disabled = false;
-          });
-        }, 100);
+            form.addEventListener('fs-submit-error', function() {
+              // Reset button on error
+              const btn = form.querySelector('[data-fs-submit-btn]');
+              if (btn) {
+                btn.innerHTML = '<i>💌</i> send my love';
+                btn.disabled = false;
+              }
+            });
+          }
+        }, 500);
       });
     })();
   </script>
