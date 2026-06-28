@@ -282,16 +282,6 @@
       justify-content: center;
     }
 
-    #form-feedback.success {
-      background: rgba(46, 125, 50, 0.15);
-      color: #1e5a1e;
-    }
-
-    #form-feedback.error {
-      background: rgba(211, 47, 47, 0.15);
-      color: #b71c1c;
-    }
-
     .footer-note {
       margin-top: 2rem;
       text-align: center;
@@ -350,25 +340,21 @@
       box-shadow: 0 8px 20px rgba(173, 20, 87, 0.3);
     }
 
+    /* Formspree status styling hooks */
+    [data-fs-error] {
+      color: #b71c1c;
+      font-size: 0.85rem;
+      margin-top: 0.3rem;
+      display: block;
+    }
+
     /* --- MOBILE RESPONSIVE --- */
     @media (max-width: 550px) {
-      .love-card {
-        padding: 1.8rem 1rem;
-      }
-      h1 {
-        font-size: 2.1rem;
-      }
-      .radio-group {
-        gap: 0.8rem;
-        padding: 0.7rem 0.8rem;
-      }
-      .form-section {
-        padding: 1.5rem 1rem;
-      }
-      .btn-send {
-        font-size: 1.1rem;
-        padding: 0.8rem;
-      }
+      .love-card { padding: 1.8rem 1rem; }
+      h1 { font-size: 2.1rem; }
+      .radio-group { gap: 0.8rem; padding: 0.7rem 0.8rem; }
+      .form-section { padding: 1.5rem 1rem; }
+      .btn-send { font-size: 1.1rem; padding: 0.8rem; }
     }
   </style>
 </head>
@@ -385,40 +371,45 @@
       “In you, I've found my forever. <span>my heart</span> beats only for you.”
     </div>
 
+    <div id="fs-success-msg" data-fs-success style="display: none;"></div>
+    <div id="fs-error-msg" data-fs-error style="display: none;"></div>
+
     <div class="form-section" id="formSection">
       <h2>
         💌 a day out?
         <small>say yes ❤️</small>
       </h2>
 
-      <form id="loveForm" action="https://formspree.io/f/mjgqrpqj" method="POST">
+      <form id="loveForm">
         <div class="input-group">
           <label for="message"><i>💬</i> your special message for me</label>
           <textarea 
             id="message" 
             name="message" 
             placeholder="Write anything you'd like to tell me..."
+            data-fs-field
             required
           ></textarea>
+          <span data-fs-error="message"></span>
         </div>
 
         <div class="input-group">
           <label><i>💕</i> will you go out with me?</label>
           <div class="radio-group">
             <label>
-              <input type="radio" name="response" value="YES! 😍" checked> YES! 😍
+              <input type="radio" name="response" value="YES! 😍" data-fs-field checked> YES! 😍
             </label>
             <label>
-              <input type="radio" name="response" value="maybe later 💫"> maybe later 💫
+              <input type="radio" name="response" value="maybe later 💫" data-fs-field> maybe later 💫
             </label>
           </div>
+          <span data-fs-error="response"></span>
         </div>
 
-        <input type="hidden" name="name" value="Edah" />
-        <input type="hidden" name="_subject" value="💌 Edah replied to your date invitation!" />
-        <input type="hidden" name="_next" value="https://edahricoomlove.netlify.app/?success=true" />
+        <input type="hidden" name="name" value="Edah" data-fs-field />
+        <input type="hidden" name="_subject" value="💌 Edah replied to your date invitation!" data-fs-field />
 
-        <button type="submit" class="btn-send" id="submitBtn">
+        <button type="submit" class="btn-send" id="submitBtn" data-fs-submit-btn>
           <i>💌</i> send my love
         </button>
       </form>
@@ -441,86 +432,56 @@
   </div>
 
   <script>
+    window.formspree = window.formspree || function () { (formspree.q = formspree.q || []).push(arguments); };
+    
+    // Initializing the declarative SDK configuration matching your new ID
+    formspree('initForm', { 
+      formElement: '#loveForm', 
+      formId: 'mjgqrpjq',
+      onSuccess: function() {
+        showThankYou();
+      }
+    });
+
     const form = document.getElementById('loveForm');
     const feedback = document.getElementById('form-feedback');
     const submitBtn = document.getElementById('submitBtn');
     const thankYouMessage = document.getElementById('thankYouMessage');
     const formSection = document.getElementById('formSection');
 
-    // Handle form submission - show loading state
-    form.addEventListener('submit', function(e) {
+    // UI Feedback adjustment prior to SDK submission firing
+    form.addEventListener('submit', function() {
       submitBtn.innerHTML = '⏳ sending your love... 💕';
       feedback.textContent = '💕 Sending your love to my heart...';
-      feedback.style.color = '#4a0024';
-      feedback.className = '';
-      
-      // Delay disabling the button by a microtask so browser submits the form properly
-      setTimeout(() => {
-        submitBtn.disabled = true;
-      }, 1);
     });
 
-    // Check if we came back from Formspree (success)
-    const urlParams = new URLSearchParams(window.location.search);
-    if (urlParams.get('success') === 'true') {
-      showThankYou();
-    }
-
-    // Show thank you message
     function showThankYou() {
-      const formElements = formSection.querySelector('form');
-      const feedbackEl = document.getElementById('form-feedback');
-      
-      if (formElements) formElements.style.display = 'none';
-      if (feedbackEl) feedbackEl.style.display = 'none';
-      
+      if (form) form.style.display = 'none';
+      if (feedback) feedback.style.display = 'none';
       thankYouMessage.classList.add('show');
-      
-      // Clean the URL query parameters without refreshing
-      window.history.replaceState({}, document.title, window.location.pathname);
     }
 
-    // Reset form function
     function resetForm() {
-      const formElements = formSection.querySelector('form');
-      const feedbackEl = document.getElementById('form-feedback');
-      
-      if (formElements) {
-        formElements.style.display = 'block';
-        formElements.reset();
-        const yesRadio = formElements.querySelector('input[name="response"][value="YES! 😍"]');
+      if (form) {
+        form.style.display = 'block';
+        form.reset();
+        const yesRadio = form.querySelector('input[name="response"][value="YES! 😍"]');
         if (yesRadio) yesRadio.checked = true;
       }
       
-      if (feedbackEl) {
-        feedbackEl.style.display = 'flex';
-        feedbackEl.textContent = '✨ Edah, your reply will be sent straight to my heart (and email) ✨';
-        feedbackEl.style.color = '#2e2e2e';
-        feedbackEl.className = '';
+      if (feedback) {
+        feedback.style.display = 'flex';
+        feedback.textContent = '✨ Edah, your reply will be sent straight to my heart (and email) ✨';
       }
       
       if (submitBtn) {
         submitBtn.innerHTML = '<i>💌</i> send my love';
-        submitBtn.disabled = false;
       }
       
       thankYouMessage.classList.remove('show');
       formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
-
-    // Check for error in URL
-    if (urlParams.get('error') === 'true') {
-      feedback.textContent = '💫 oops! something went wrong. but I know you said yes anyway, Edah 😉';
-      feedback.style.color = '#b71c1c';
-      feedback.className = 'error';
-      
-      if (submitBtn) {
-        submitBtn.innerHTML = '<i>💌</i> send my love';
-        submitBtn.disabled = false;
-      }
-    }
-
-    console.log('💕 Love app loaded! Ready for Edah!');
   </script>
+  <script src="https://unpkg.com/@formspree/ajax@1" defer></script>
 </body>
 </html>
