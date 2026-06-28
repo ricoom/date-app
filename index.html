@@ -374,28 +374,23 @@
 </head>
 <body>
   <div class="love-card">
-    <!-- DECORATIVE HEARTS -->
     <div class="heart-rain">💖✨💗✨💖</div>
 
-    <!-- PERSONALIZED HEADER -->
     <h1>for my dearest Edah ❤️</h1>
     <div class="sub-message">
       <i>every day with you is a beautiful chapter ✨</i>
     </div>
 
-    <!-- ROMANTIC QUOTE -->
     <div class="love-quote">
       “In you, I've found my forever. <span>my heart</span> beats only for you.”
     </div>
 
-    <!-- INTERACTIVE FORM -->
     <div class="form-section" id="formSection">
       <h2>
         💌 a day out?
         <small>say yes ❤️</small>
       </h2>
 
-      <!-- SIMPLE FORM - Ad blocker friendly! -->
       <form id="loveForm" action="https://formspree.io/f/mjgqrpqj" method="POST">
         <div class="input-group">
           <label for="message"><i>💬</i> your special message for me</label>
@@ -419,7 +414,6 @@
           </div>
         </div>
 
-        <!-- Hidden fields for Formspree -->
         <input type="hidden" name="name" value="Edah" />
         <input type="hidden" name="_subject" value="💌 Edah replied to your date invitation!" />
         <input type="hidden" name="_next" value="https://edahricoomlove.netlify.app/?success=true" />
@@ -431,7 +425,6 @@
 
       <div id="form-feedback">✨ Edah, your reply will be sent straight to my heart (and email) ✨</div>
 
-      <!-- Thank You Message (hidden initially) -->
       <div class="thank-you-message" id="thankYouMessage">
         <div class="big-heart">❤️</div>
         <h2>Thank You, Edah! 💕</h2>
@@ -442,17 +435,12 @@
       </div>
     </div>
 
-    <!-- FOOTER -->
     <div class="footer-note">
       ❤️ always & forever, Edah ❤️
     </div>
   </div>
 
   <script>
-    // ============================================
-    // SIMPLE FORM HANDLING - No ad blocker issues!
-    // ============================================
-    
     const form = document.getElementById('loveForm');
     const feedback = document.getElementById('form-feedback');
     const submitBtn = document.getElementById('submitBtn');
@@ -462,13 +450,14 @@
     // Handle form submission - show loading state
     form.addEventListener('submit', function(e) {
       submitBtn.innerHTML = '⏳ sending your love... 💕';
-      submitBtn.disabled = true;
       feedback.textContent = '💕 Sending your love to my heart...';
       feedback.style.color = '#4a0024';
       feedback.className = '';
       
-      // The form submits normally to Formspree
-      // Formspree redirects to _next URL on success
+      // Delay disabling the button by a microtask so browser submits the form properly
+      setTimeout(() => {
+        submitBtn.disabled = true;
+      }, 1);
     });
 
     // Check if we came back from Formspree (success)
@@ -479,30 +468,26 @@
 
     // Show thank you message
     function showThankYou() {
-      // Hide the form
       const formElements = formSection.querySelector('form');
       const feedbackEl = document.getElementById('form-feedback');
       
       if (formElements) formElements.style.display = 'none';
       if (feedbackEl) feedbackEl.style.display = 'none';
       
-      // Show thank you message
       thankYouMessage.classList.add('show');
       
-      // Clean the URL without refreshing
+      // Clean the URL query parameters without refreshing
       window.history.replaceState({}, document.title, window.location.pathname);
     }
 
     // Reset form function
     function resetForm() {
-      // Reset everything
       const formElements = formSection.querySelector('form');
       const feedbackEl = document.getElementById('form-feedback');
       
       if (formElements) {
         formElements.style.display = 'block';
         formElements.reset();
-        // Reset radio to "YES"
         const yesRadio = formElements.querySelector('input[name="response"][value="YES! 😍"]');
         if (yesRadio) yesRadio.checked = true;
       }
@@ -514,16 +499,12 @@
         feedbackEl.className = '';
       }
       
-      // Reset button
       if (submitBtn) {
         submitBtn.innerHTML = '<i>💌</i> send my love';
         submitBtn.disabled = false;
       }
       
-      // Hide thank you
       thankYouMessage.classList.remove('show');
-      
-      // Scroll to form
       formSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
     }
 
@@ -540,7 +521,6 @@
     }
 
     console.log('💕 Love app loaded! Ready for Edah!');
-    console.log('📧 Using Formspree endpoint: https://formspree.io/f/mjgqrpqj');
   </script>
 </body>
 </html>
